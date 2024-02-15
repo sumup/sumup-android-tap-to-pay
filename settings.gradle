@@ -1,0 +1,2 @@
+rootProject.name = "android-tap-to-pay"
+include(':tap-to-pay-sampleapp')

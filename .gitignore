@@ -1,0 +1,14 @@
+.gradle
+/local.properties
+/github.properties
+/.idea
+.DS_Store
+/build
+/*/build
+*.iml
+app/src/main/res/raw/sumup.bks
+app/src/main/res/values-ru/*
+
+# fastlane specific
+**/fastlane/report.xml
+**/fastlane/README.md
