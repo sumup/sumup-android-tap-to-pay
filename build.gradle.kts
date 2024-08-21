@@ -15,10 +15,10 @@ allprojects {
             url = uri("https://maven.sumup.com/releases")
         }
         maven {
-            url = uri("https://tap-to-pay-sdk.fleet.dev.sumup.net/")
+            url = uri("https://tap-to-pay-sdk.fleet.live.sumup.net/")
             credentials {
-                username = "your_username"
-                password = "your_password"
+                username = "your_username_provided_by_sumup"
+                password = "your_password_provided_by_sumup"
             }
         }
         google()

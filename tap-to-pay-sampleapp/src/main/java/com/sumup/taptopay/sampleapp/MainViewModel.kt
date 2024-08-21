@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sumup.taponphone.TapToPay
 import com.sumup.taponphone.TapToPayApiProvider
+import com.sumup.taponphone.auth.AuthTokenProvider
 import com.sumup.taponphone.payment.domain.model.CheckoutData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,7 +73,11 @@ internal class MainViewModel : ViewModel() {
 
     private fun initTapToPay() {
         viewModelScope.launch {
-            tapToPay.init()
+            tapToPay.init(
+                object : AuthTokenProvider {
+                    override fun getAccessToken(): String = "An access token or API token"
+                }
+            )
             _uiState.emit(
                 currentState.copy(
                     isLoading = false,
