@@ -1,13 +1,13 @@
 
 # TapToPay SDK
 
-This repository provides step-by-step documentation for SumUp's TapToPay SDK, which enables users to use any Android phone as a contactless reader. This is an early version (0.2.0-DEV) of the SDK, which contains a set of limitations that will be addressed in future versions. The SDK currently works only in DEV mode and is intended for testing purposes.
+This repository provides step-by-step documentation for SumUp's TapToPay SDK, which enables users to use any Android phone as a contactless reader. This is an early version (0.5.0) of the SDK, which contains a set of limitations that will be addressed in future versions. The SDK currently works only in DEV mode and is intended for testing purposes.
 
 ## Limitations
 
 1. **Environment Restriction**: The SDK works only in the SumUp `Staging` environment. For security reasons, this set is configured for the Staging environment only. The real transactions are not processed in the Staging environment.
 
-2. **Market Restriction**: The SDK uses hardcoded payment configurations for the German (DE) market. Due to this, it is only possible to use German test user. 
+2. **Market Restriction**: The SDK uses hardcoded payment configurations for the German (DE) market. Due to this, it is only possible to use German test user.
 
 3. **Feature Limitations**: The TapToPay API doesn't currently support all the features that exist in the MerchantApp, such as tips and installments.
 
@@ -18,8 +18,8 @@ You can use the sample app provided in this repository as a reference.
 ### Setup
 
 For external integrators who want to test the SDK, SumUp provides:
- - API key for the Staging environment, which is used for the authentication process
- - Test credentials, which are used to get access to the SDK repository
+- API key for the Staging environment, which is used for the authentication process
+- Test credentials, which are used to get access to the SDK repository
 
 ### Prerequisites
 - Kotlin version: 1.9.22 or later
@@ -33,28 +33,28 @@ For external integrators who want to test the SDK, SumUp provides:
 Add the following to the Gradle dependencies:
 
 ```kotlin  
-allprojects {  
-    repositories {  
-        maven {  
-            url = uri("https://maven.sumup.com/releases")  
-        }  
-        maven {  
-            url = uri("https://tap-to-pay-sdk.fleet.live.sumup.net/")  
-            credentials {  
+allprojects {
+    repositories {
+        maven {
+            url = uri("https://maven.sumup.com/releases")
+        }
+        maven {
+            url = uri("https://tap-to-pay-sdk.fleet.live.sumup.net/")
+            credentials {
                 username = "your_username"  // The credentials are provided by SumUp
-                password = "your_password"  
-            }  
-        }        
-        google()  
-        mavenCentral()  
-    }  
+                password = "your_password"
+            }
+        }
+        google()
+        mavenCentral()
+    }
 }
 ```  
 
 Add the dependency to a module `build.gradle`:
 
 ```groovy  
-implementation("com.sumup.tap-to-pay:utopia-sdk:0.2.0-DEV")
+implementation("com.sumup.tap-to-pay:utopia-sdk-dev:0.5.0")
 ```  
 
 ### Authentication
@@ -63,7 +63,7 @@ UTOPIA SDK uses the transparent authentication approach. It means that the SDK i
 
 ```kotlin
 interface AuthTokenProvider {
-  fun getAccessToken(): String
+    fun getAccessToken(): String
 }
 ```
 
@@ -83,7 +83,7 @@ There are several ways for a consumer app to provide the access token to the SDK
 The `TapToPay` interface provides methods to interact with the Tap to Pay feature. To receive the implementation of the `TapToPay` interface, call:
 
 ```kotlin
-val tapToPay = TapToPayApiProvider.provide()
+val tapToPay = TapToPayApiProvider.provide(applicationContext)
 ```
 
 The `TapToPay` interface has the following methods:
@@ -109,7 +109,7 @@ The `startPayment` method initiates the payment process. It returns a `Flow` of 
 
 The list of possible events:
 
-- `TransactionDone(val output: PaymentOutput)` - in case of a completed transaction where `PaymentOutput` param is:
+- `TransactionDone(val paymentOutput: PaymentOutput)` - in case of a completed transaction where `PaymentOutput` param is:
   ```kotlin
   data class PaymentOutput(
       val txCode: String,
@@ -117,9 +117,10 @@ The list of possible events:
   )
   ```
 
-- `TransactionFailed` - in case of a failed transaction for several reasons, like backend error, card reader error, and so on.
-- `TransactionCanceled` - in case of a canceled transaction by the user.
-- `PaymentClosed(val shouldDisplayReceipt: Boolean)` - after a successful transaction, users see the successful screen with two buttons: Send receipt and Done. Once the user clicks on any button, the screen closes and fires the `PaymentClosed` event.
+- `TransactionFailed(val paymentOutput: PaymentOutput?)` - in case of a failed transaction for several reasons, like backend error, card reader error, and so on.
+- `TransactionCanceled(val paymentOutput: PaymentOutput?)` - in case of a canceled transaction by the user.
+- `PaymentFlowClosedSuccessfully(val paymentOutput: PaymentOutput?, val shouldDisplayReceipt: Boolean)` - after a successful transaction, users see the successful screen with two buttons: Send receipt and Done. Once the user clicks on any button, the screen closes and fires the `PaymentClosed` event.
+
 
 The function can also return `Result.Failure` with one exception from the list of exceptions mentioned [here](#Exceptions).
 
@@ -176,5 +177,11 @@ The SDK can throw the following exceptions:
   The list of exceptions can be extended in the future.
 
 ## Known Issues
-1. We use [EncryptedSharedPreferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences) to store some data. There is a known issue with the `EncryptedSharedPreferences` library that causes the `InvalidProtocolBufferException` exception during the first initialization. This issue is related to the `EncryptedSharedPreferences` library and is not directly related to the SDK. The issue is tracked [here](https://issuetracker.google.com/issues/164901843).
-   There is a workaround for this issue. You need to clean up the app data and restart the app.
+1. The is an issue with Android Manifest. Your app will contain this NFC feature which decreases the amount of support devices in Google Play Store. To fix this issue, you can add the following code to your AndroidManifest.xml file:
+```xml
+    <uses-feature
+      android:name="android.hardware.nfc"
+      android:required="false"
+      tools:replace="required" />
+```
+This will be fixed in the next version of the SDK.

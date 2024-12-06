@@ -20,13 +20,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
+import com.sumup.taptopay.TapToPayApiProvider
 import com.sumup.taptopay.sampleapp.screen.MainPaymentScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel: MainViewModel by viewModels()
-
+    private val viewModel: MainViewModel by viewModels(
+        factoryProducer = {
+            MainViewModelFactory(
+                tapToPay = TapToPayApiProvider.provide(applicationContext),
+            )
+        }
+    )
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
