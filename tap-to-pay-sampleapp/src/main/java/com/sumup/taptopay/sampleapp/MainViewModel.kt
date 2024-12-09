@@ -2,23 +2,23 @@ package com.sumup.taptopay.sampleapp
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.sumup.taponphone.TapToPay
-import com.sumup.taponphone.TapToPayApiProvider
-import com.sumup.taponphone.auth.AuthTokenProvider
-import com.sumup.taponphone.payment.domain.model.CheckoutData
+import com.sumup.taptopay.TapToPay
+import com.sumup.taptopay.auth.AuthTokenProvider
+import com.sumup.taptopay.payment.domain.model.CheckoutData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-internal class MainViewModel : ViewModel() {
+internal class MainViewModel(
+    private val tapToPay: TapToPay
+) : ViewModel() {
 
     private val _uiState: MutableStateFlow<MainViewState> = MutableStateFlow(MainViewState())
     val uiState: StateFlow<MainViewState> = _uiState.asStateFlow()
-
-    private val tapToPay: TapToPay = TapToPayApiProvider.provide()
 
     private inline val currentState: MainViewState
         get() = _uiState.value
@@ -84,5 +84,15 @@ internal class MainViewModel : ViewModel() {
                 )
             )
         }
+    }
+}
+
+internal class MainViewModelFactory(
+    private val tapToPay: TapToPay,
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return MainViewModel(
+            tapToPay = tapToPay,
+        ) as T
     }
 }
