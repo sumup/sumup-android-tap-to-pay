@@ -1,15 +1,11 @@
 
 # TapToPay SDK
 
-This repository provides step-by-step documentation for SumUp's TapToPay SDK, which enables users to use any Android phone as a contactless reader. This is an early version (0.5.0) of the SDK, which contains a set of limitations that will be addressed in future versions. The SDK currently works only in DEV mode and is intended for testing purposes.
+This repository provides step-by-step documentation for SumUp's TapToPay SDK, which enables users to use any Android phone as a contactless reader. This is an early version (0.9.0) of the SDK, which contains a set of limitations that will be addressed in future versions. The SDK currently works only in DEV mode and is intended for testing purposes.
 
 ## Limitations
 
 1. **Environment Restriction**: The SDK works only in the SumUp `Staging` environment. For security reasons, this set is configured for the Staging environment only. The real transactions are not processed in the Staging environment.
-
-2. **Market Restriction**: The SDK uses hardcoded payment configurations for the German (DE) market. Due to this, it is only possible to use German test user.
-
-3. **Feature Limitations**: The TapToPay API doesn't currently support all the features that exist in the MerchantApp, such as tips and installments.
 
 ## Integration of the TapToPay SDK
 
@@ -54,7 +50,7 @@ allprojects {
 Add the dependency to a module `build.gradle`:
 
 ```groovy  
-implementation("com.sumup.tap-to-pay:utopia-sdk-dev:0.5.0")
+implementation("com.sumup.tap-to-pay:utopia-sdk-dev:0.9.0")
 ```  
 
 ### Authentication
@@ -85,6 +81,7 @@ The `TapToPay` interface provides methods to interact with the Tap to Pay featur
 ```kotlin
 val tapToPay = TapToPayApiProvider.provide(applicationContext)
 ```
+where `applicationContext` is the context of a consumer application.
 
 The `TapToPay` interface has the following methods:
 
@@ -95,6 +92,7 @@ suspend fun init(authTokenProvider: AuthTokenProvider): Result<Unit>
 ```
 
 The `init` method initializes the session, and register the Terminal if it is needed. The `AuthTokenProvider` interface is responsible for providing the access token to the SDK (see [here](#Authentication)).
+Please, note that the `init` method should be called only once during the app lifecycle. The `init` method should be called as soon as possible after the app starts.
 
 The `init` function returns a `Result` object that can be either a `Result.Success` if the initialization was successful.
 The function can also return `Result.Failure` with one exception from the list of exceptions mentioned [here](#Exceptions).
@@ -119,8 +117,8 @@ The list of possible events:
 
 - `TransactionFailed(val paymentOutput: PaymentOutput?)` - in case of a failed transaction for several reasons, like backend error, card reader error, and so on.
 - `TransactionCanceled(val paymentOutput: PaymentOutput?)` - in case of a canceled transaction by the user.
+- `TransactionResultUnknown(val paymentOutput: PaymentOutput?)` - in case of an unknown transaction result. For example, if we send to BE all requred data but didn't receive any response for any reason.
 - `PaymentFlowClosedSuccessfully(val paymentOutput: PaymentOutput?, val shouldDisplayReceipt: Boolean)` - after a successful transaction, users see the successful screen with two buttons: Send receipt and Done. Once the user clicks on any button, the screen closes and fires the `PaymentClosed` event.
-
 
 The function can also return `Result.Failure` with one exception from the list of exceptions mentioned [here](#Exceptions).
 
@@ -131,17 +129,23 @@ The function can also return `Result.Failure` with one exception from the list o
 ```kotlin
 data class CheckoutData(
     val totalAmount: Long,
+    val tipsAmount: Long?,
+    val vatAmount: Long?,
     val clientUniqueTransactionId: String,
-    val customItems: ArrayList<CustomItem>?,
-    val priceItems: ArrayList<PriceItem>?,
+    val customItems: List<CustomItem>?,
+    val priceItems: List<PriceItem>?,
+    val processCardAs: ProcessCardAs?,
 ) : Serializable
 ```
 
 Where:
-- `totalAmount` - The amount expressed in the minor unit of the currency. For example, an amount of $`12.34` corresponds to a value of `1234`, $`11.00` corresponds to a value of  `1100`.
+- `totalAmount` - The amount expressed in the minor unit of the currency. For example, an amount of $`12.34` corresponds to a value of `1234`, $`11.00` corresponds to a value of  `1100`. Total amount includes tip amount and VAT amount.
+- `tipsAmount` - The amount of tips expressed in the minor unit of the currency. Please, note that the tip amount is included in the total amount. Ignored if null.
+- `vatAmount` - The amount of VAT expressed in the minor unit of the currency. Please, note that the VAT amount is included in the total amount. Ignored if null.
 - `clientUniqueTransactionId` - Currently, this can be any random string.
-- `customItems` - The list of custom items.
-- `priceItems` - The list of price items.
+- `customItems` - The list of custom items. Set null if not used.
+- `priceItems` - The list of price items. Set null if not used.
+- `processCardAs` - The type of the card processing. The default value is `null`. The possible values are `ProcessCardAs.Credit(val instalments: Int)` and `ProcessCardAs.Debit`. Where `instalments` is the number of instalments. This parameter is optional and can used only on some markets where the instalments are supported.
 
 The required minimum to make the transaction looks like:
 
@@ -151,8 +155,11 @@ fun startPayment() {
         CheckoutData(
             totalAmount = 1234, // 12.34 EUR
             clientUniqueTransactionId = "123",
+            tipsAmount = null,
+            vatAmount = null,
             customItems = null,
-            priceItems = null
+            priceItems = null,
+            processCardAs = null,
         )
     ).collectLatest {
         Log.d("Payment event: $it")
@@ -166,7 +173,9 @@ fun startPayment() {
 suspend fun tearDown(): Result<Unit>
 ```
 
-The `tearDown` function logs out the user, cleans up keys and other sensitive data, and closes the session. It returns a `Result` object that can be either a `Result.Success` if the teardown was successful or a `Result.Failure` if there was an error during the teardown.
+The `tearDown` function logs out the user, cleans up keys and other sensitive data, and closes the session. 
+The `tearDown` method should be called when the app is closed or when the user logs out.
+It returns a `Result` object that can be either a `Result.Success` if the teardown was successful or a `Result.Failure` if there was an error during the teardown.
 
 #### Exceptions
 
@@ -175,13 +184,3 @@ The SDK can throw the following exceptions:
 - `AppUpdateException` - in case of an outdated version of the app. The consumer app should ask the user to update the app.
 - `UnauthorisedException` - in case of an unauthorized user. In this case the consumer app should refresh the token or log out the user and ask for the login again.
   The list of exceptions can be extended in the future.
-
-## Known Issues
-1. The is an issue with Android Manifest. Your app will contain this NFC feature which decreases the amount of support devices in Google Play Store. To fix this issue, you can add the following code to your AndroidManifest.xml file:
-```xml
-    <uses-feature
-      android:name="android.hardware.nfc"
-      android:required="false"
-      tools:replace="required" />
-```
-This will be fixed in the next version of the SDK.

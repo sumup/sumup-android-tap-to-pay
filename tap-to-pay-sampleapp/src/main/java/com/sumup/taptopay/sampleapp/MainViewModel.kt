@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.sumup.taptopay.TapToPay
 import com.sumup.taptopay.auth.AuthTokenProvider
-import com.sumup.taptopay.payment.domain.model.CheckoutData
+import com.sumup.taptopay.payment.domain.model.api.CheckoutData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -62,8 +62,11 @@ internal class MainViewModel(
                 CheckoutData(
                     totalAmount = currentState.paymentData.amount,
                     clientUniqueTransactionId = "123",
+                    tipsAmount = null,
+                    vatAmount = null,
                     customItems = null,
-                    priceItems = null
+                    priceItems = null,
+                    processCardAs = null,
                 )
             ).collectLatest {
                 Log.d("MainViewModel", "Payment event: $it")
