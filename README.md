@@ -139,13 +139,24 @@ data class CheckoutData(
 ```
 
 Where:
-- `totalAmount` - The amount expressed in the minor unit of the currency. For example, an amount of $`12.34` corresponds to a value of `1234`, $`11.00` corresponds to a value of  `1100`. Total amount includes tip amount and VAT amount.
+- `totalAmount` - The amount expressed in the minor unit of the currency. Total amount includes tip amount and VAT amount.
 - `tipsAmount` - The amount of tips expressed in the minor unit of the currency. Please, note that the tip amount is included in the total amount. Ignored if null.
 - `vatAmount` - The amount of VAT expressed in the minor unit of the currency. Please, note that the VAT amount is included in the total amount. Ignored if null.
 - `clientUniqueTransactionId` - Currently, this can be any random string.
 - `customItems` - The list of custom items. Set null if not used.
 - `priceItems` - The list of price items. Set null if not used.
 - `processCardAs` - The type of the card processing. The default value is `null`. The possible values are `ProcessCardAs.Credit(val instalments: Int)` and `ProcessCardAs.Debit`. Where `instalments` is the number of instalments. This parameter is optional and can used only on some markets where the instalments are supported.
+
+**Note:** The amount shall be provided in minor unit of the currency according to the list below.    
+Currencies with exponent 2 : `AUD, BGN, BRL, CHF, CLP, COP, CZK, DKK, EUR, GBP, HRK, HUF, NOK, PEN, PLN, RON, SEK, USD`.
+
+For example, an amount of `$12.34` corresponds to a value of `1234`, `$11.00` corresponds to a value of `1100`.
+
+**Note 2:** Some currencies (Hungarian Forint `HUF`, Chilean Peso `CLP` and Colombian Peso `COP`) are displayed to the merchant and cardholder without minor unit of the currency but still require it.
+
+For these specific currencies, the amount shall still be multiplied by 100 (exponent 2).
+For example, `Ft100` should be provided as `10000`.
+
 
 The required minimum to make the transaction looks like:
 
