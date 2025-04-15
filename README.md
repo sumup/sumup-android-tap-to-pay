@@ -27,16 +27,6 @@ Each build type is associated with a specific environment to ensure proper separ
 | Live       |              | false      | production  |
 
 
-## Architecture review
-
-We run all operations in a separate process to ensure they are more secure and independent from the main application. 
-This approach enhances security by isolating sensitive operations from the main app's execution flow.
-
-Additionally, we encrypt all data to protect sensitive information. 
-For encryption, we utilize the **Android Keystore System** to securely store cryptographic keys and **Encrypted Shared Preferences** to safely store encrypted data. 
-These measures ensure that data remains secure both while being transferred and when stored on the device.
-
-
 ## Integration of the TapToPay SDK
 
 You can use the sample app provided in this repository as a reference.
@@ -155,7 +145,6 @@ The list of possible events:
       val serverTransactionId: String
   )
   ```
-  
 - `TransactionFailed(val paymentOutput: PaymentOutput?)` - in case of a failed transaction for several reasons, like backend error, card reader error, and so on.
 - `TransactionCanceled(val paymentOutput: PaymentOutput?)` - in case of a canceled transaction by the user.
 - `TransactionResultUnknown(val paymentOutput: PaymentOutput?)` - in case of an unknown transaction result. For example, if we send to BE all requred data but didn't receive any response for any reason.
