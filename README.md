@@ -10,14 +10,14 @@ The build types are **Dev** and **Live**, and the environments are **Staging** a
 Each build type is associated with a specific environment to ensure proper separation of testing and live operations.
 
 ### Staging Environment
-- No real transactions are performed in the staging environment.
+- No real transactions are performed in the staging environment. 
+- Only test cards are suitable for staging environment. Do not use real cards
 - Used for testing and development purposes.
-- Dev builds are deployed to the staging environment.
 
 ### Production Environment
-- Real transactions are performed in the production environment.
+- Real transactions are performed in the production environment. 
+- Only real cards are suitable for production environment. Do not use test cards
 - Used for live, customer-facing operations.
-- Live builds are deployed to the production environment.
 
 ### Overview of build types and associated environments
 
@@ -109,7 +109,9 @@ There are several ways for a consumer app to provide the access token to the SDK
 2. Using API key. It is possible to generate an API key in the SumUp Dashboard for [Live environment](https://developer.sumup.com/online-payments/introduction/authorization#api-keys) and provide it to the SDK.
 
 > ⚠️ **Important:**
-> The API keys should be stored securely and should not be hardcoded in the app. The API keys should be stored in the secure storage and should be provided to the SDK when needed. Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
+> The API keys should be stored securely and should not be hardcoded in the app. 
+> The API keys should be stored in the secure storage and should be provided to the SDK when needed. 
+> Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
 
 ### API
 
@@ -145,7 +147,7 @@ It returns a `Flow` of `Result` objects that can be either a `Result.Success` wi
 
 The list of possible events:
 
-- `CardRequested` - a card is requested to be presented by the cardholder.
+- `CardRequested` - the SDK is trying to detect a card, waiting for the cardholder to tap/present his card.
 - `CardPresented` - a card is detected.
 - `CVMRequested` - a CVM (Cardholder Verification Method) is requested. This event is fired when the card is detected and the SDK is waiting for the cardholder to enter the PIN.
 - `CVMPresented` - a CVM is has been performed by the cardholder. This event is fired upon completion of the CVM regardless if it was successful or not.
