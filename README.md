@@ -140,8 +140,7 @@ The function can also return `Result.Failure` with one exception from the list o
 suspend fun startPayment(checkoutData: CheckoutData): Flow<Result<PaymentEvent>>
 ```
 
-The `startPayment` method initiates the payment process. 
-It returns a `Flow` of `Result` objects that can be either a `Result.Success` with the `PaymentEvent` or a `Result.Failure` with an error message.
+The `startPayment` method initiates the payment process. It returns a `Flow` of `Result` objects that can be either a `Result.Success` with the `PaymentEvent` or a `Result.Failure` with an error message.
 
 The list of possible events:
 
