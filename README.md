@@ -236,7 +236,9 @@ It returns a `Result` object that can be either a `Result.Success` if the teardo
 
 #### Exceptions
 
-The SDK can return `Result.Failure` with one of the following exception types:
+The SDK may return a Result.Failure containing an exception when one of its methods is called. 
+Every exception belongs to one of the base types. 
+The base types are listed below, and each of these is further divided into more specific exception types.
 
 - `CommonException` - These exceptions cover scenarios such as initialization issues, registration problems, authentication failures, and required updates, providing a consistent and predictable way to handle errors across the system.
 - `NetworkException` - These exceptions represent network-related and communication errors encountered during SDK operation. They include issues such as interrupted connections, authentication problems, and server/client-side failures.
