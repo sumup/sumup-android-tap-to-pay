@@ -109,9 +109,7 @@ There are several ways for a consumer app to provide the access token to the SDK
 2. Using API key. It is possible to generate an API key in the SumUp Dashboard for [Live environment](https://developer.sumup.com/online-payments/introduction/authorization#api-keys) and provide it to the SDK.
 
 > ⚠️ **Important:**
-> The API keys should be stored securely and should not be hardcoded in the app. 
-> The API keys should be stored in the secure storage and should be provided to the SDK when needed. 
-> Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
+>  The API keys should be stored securely and should not be hardcoded in the app. The API keys should be stored in the secure storage and should be provided to the SDK when needed. Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
 
 ### API
 
