@@ -1,9 +1,7 @@
 
-# TapToPay SDK
+# TapToPay on Android SDK
 
-This repository provides step-by-step documentation for SumUp's TapToPay SDK, which enables users to use any Android phone as a contactless reader. 
-This is an early version (0.15.0) of the SDK, which contains a set of limitations that will be addressed in future versions. 
-
+This repository provides step-by-step documentation for SumUp's TapToPay Android SDK, which enables users to use any Android phone as a contactless reader.
 
 ## Build types and environments
 
