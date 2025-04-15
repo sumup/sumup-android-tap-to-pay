@@ -109,9 +109,7 @@ There are several ways for a consumer app to provide the access token to the SDK
 2. Using API key. It is possible to generate an API key in the SumUp Dashboard for [Live environment](https://developer.sumup.com/online-payments/introduction/authorization#api-keys) and provide it to the SDK.
 
 > ⚠️ **Important:**
-> The API keys should be stored securely and should not be hardcoded in the app. 
-> The API keys should be stored in the secure storage and should be provided to the SDK when needed. 
-> Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
+> The API keys should be stored securely and should not be hardcoded in the app. The API keys should be stored in the secure storage and should be provided to the SDK when needed. Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
 
 ### API
 
@@ -147,10 +145,10 @@ It returns a `Flow` of `Result` objects that can be either a `Result.Success` wi
 
 The list of possible events:
 
-- `CardRequested` - a card is requested to be presented by the customer.
-- `CardPresented` - a card is presented by the customer.
-- `CVMRequested` - a CVM (Cardholder Verification Method) is requested. This event is fired when the card is presented and the SDK is waiting for the user to enter the PIN.
-- `CVMPResented` - a CVM is presented by the customer. This event is fired when the user enters the PIN.
+- `CardRequested` - a card is requested to be presented by the cardholder.
+- `CardPresented` - a card is detected.
+- `CVMRequested` - a CVM (Cardholder Verification Method) is requested. This event is fired when the card is detected and the SDK is waiting for the cardholder to enter the PIN.
+- `CVMPresented` - a CVM is has been performed by the cardholder. This event is fired upon completion of the CVM regardless if it was successful or not.
 - `TransactionDone(val paymentOutput: PaymentOutput)` - in case of a completed transaction where `PaymentOutput` param is:
   ```kotlin
   data class PaymentOutput(
@@ -240,6 +238,6 @@ The base types are listed below, and each of these is further divided into more 
 
 - `CommonException` - These exceptions cover scenarios such as initialization issues, registration problems, authentication failures, and required updates, providing a consistent and predictable way to handle errors across the system.
 - `NetworkException` - These exceptions represent network-related and communication errors encountered during SDK operation. They include issues such as interrupted connections, authentication problems, and server/client-side failures.
-- `PaymentException` - These exceptions represent errors related to the payment transaction flow, covering everything from preprocessing to final charge attempts. They include issues such as invalid payment actions, timeouts, incorrect amounts, unsupported card technologies, and unexpected states during card reading or authentication.
+- `PaymentException` - These exceptions represent errors related to the payment transaction flow, covering everything from preprocessing to final charge attempts. They include issues such as invalid payment actions, timeouts, incorrect amounts, unsupported card technologies, and unexpected states during card reading.
 - `PaymentPreparationException` - These exceptions relate to the preparation and availability of the payment process. They indicate failures such as the unavailability of the payment function, issues during kernel setup, missing security-related data, and general checkout failures. These errors typically occur before or at the start of a transaction and prevent it from proceeding.
 - `TapToPayException.Unknown` - The Unknown exception represents an internal error that cannot be exposed externally. It acts as a fallback for unexpected or unclassified issues that occur within the SDK, ensuring sensitive or implementation-specific details are not leaked.
