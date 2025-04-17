@@ -6,7 +6,7 @@ This repository provides a step-by-step guide on how you can integrate this func
 
 - Transactions are performed in the production environment.
 - Used for live, customer-facing operations.
-- The live version of the SDK is not debuggable. Additionally, **Attestation & Monitoring** is enabled. If a device doesn’t meet our threat policy (for example, if debug mode is enabled or the device is rooted) then payment operations will not be available.
+- The SDK is not debuggable. Additionally, **Attestation & Monitoring** is enabled. If a device doesn’t meet our threat policy (for example, if debug mode is enabled or the device is rooted) then payment operations will not be available.
 - For testing purposes, use dedicated developer credentials to prevent actual card charges. You can request access by contacting integration@sumup.com.
 
 # Table of Contents
