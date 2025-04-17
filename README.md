@@ -1,23 +1,37 @@
 
-# TapToPay on Android SDK
+# Tap to Pay on Android SDK
 
-This repository provides step-by-step documentation for SumUp's TapToPay Android SDK, which enables users to use any Android phone as a contactless reader, allowing merchants to accept payments directly on their devices without the need for additional hardware.
+Tap to Pay on Android SDK enables your mobile app to accept card-present contactless payments with a smartphone only, without the need for any additional hardware.
+This repository provides a step-by-step guide on how you can integrate this functionality into your Android mobile app.
 
-- Transactions are performed in the production environment. 
-- Only real cards are suitable for production environment. Do not use test cards
+- Transactions are performed in the production environment.
 - Used for live, customer-facing operations.
+- The live version of the SDK is not debuggable. Additionally, **Attestation & Monitoring** is enabled. If a device doesn’t meet our threat policy (for example, if debug mode is enabled or the device is rooted) then payment operations will not be available.
 - For testing purposes, use dedicated developer credentials to prevent actual card charges. You can request access by contacting integration@sumup.com.
 
+# Table of Contents
 
-## Integration of the TapToPay SDK
+1. [Overview](#tap-to-pay-on-android-sdk)
+2. [Integration](#integration)  
+   2.1. [Setup](#setup)  
+   2.2. [Prerequisites](#prerequisites)  
+   2.3. [Dependency](#dependency)  
+3. [Authentication](#authentication)  
+4. [API](#api)  
+   4.1. [Initialization](#1-initialization)  
+   4.2. [Start Payment](#2-start-payment)  
+   4.3. [Tear Down](#3-tear-down)  
+   4.4. [Exceptions](#exceptions)
+
+## Integration
 
 You can use the sample app provided in this repository as a reference.
 
 ### Setup
 
-For external integrators who want to test the SDK, SumUp provides:
-- API key, which is used for the authentication process.
-- Maven repository credentials, which are used to get access to the SDK repository.
+To integrate the Tap to Pay on Android SDK you will need:
+- an API key (used for the authentication process). You can create an API key in the [SumUp Dashboard](https://developer.sumup.com/online-payments/introduction/authorization#api-keys)
+- maven repository credentials (to access the SDK repository, can be requested by sending an email to integration@sumup.com).
 
 ### Prerequisites
 - Kotlin version: 1.9.22 or later
@@ -57,9 +71,9 @@ implementation("com.sumup.tap-to-pay:utopia-sdk:0.15.0")
 
 ### Authentication
 
-TapToPay SDK uses the transparent authentication approach. 
+Tap to Pay on Android SDK uses the transparent authentication approach. 
 It means that the SDK is not responsible for the authentication process. 
-The authentication process is handled by consuming app. 
+The authentication process is handled by the consuming app. 
 The SDK provides the `init` [method](#1-initialization) with the `AuthTokenProvider` interface as a parameter. 
 The `AuthTokenProvider` interface is responsible for providing the access token to the SDK.
 
@@ -71,12 +85,14 @@ interface AuthTokenProvider {
 
 There are several ways for a consumer app to provide the access token to the SDK.
 
-1. Using the OAuth2 [flow](https://developer.sumup.com/online-payments/introduction/authorization#o-auth-2-0). The consumer app can implement the OAuth2 flow to get the access token and provide it to the SDK. The SDK provides the `AuthTokenProvider` interface that should be implemented by the consumer app. The implementation of the `getAccessToken` method should return the access token. This way is preferable and recommended because it provides a more secure way to authenticate the user.
+1. Using the OAuth2 [flow](https://developer.sumup.com/online-payments/introduction/authorization#o-auth-2-0):
+The consumer app can implement the OAuth2 flow to get the access token and provide it to the SDK. The SDK provides the `AuthTokenProvider` interface that should be implemented by the consumer app. The implementation of the `getAccessToken` method should return the access token. This way is preferable and recommended because it provides a more secure way to authenticate the user.
 
-2. Using API key. It is possible to use provided API key as an auth token, or generate a new one in the [SumUp Dashboard](https://developer.sumup.com/online-payments/introduction/authorization#api-keys) and provide it to the SDK.
+2. Using API key:
+It is possible to use provided API key as an auth token, or generate a new one in the [SumUp Dashboard](https://developer.sumup.com/online-payments/introduction/authorization#api-keys) and provide it to the SDK.
 
 > ⚠️ **Important:**
->  The API keys should be stored securely and should not be hardcoded in the app. The API keys should be stored in the secure storage and should be provided to the SDK when needed. Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
+>  The API keys should be stored securely and should not be hardcoded in the app. Instead, they should be stored in the secure storage and provided to the SDK when needed. Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
 
 ### API
 
@@ -111,10 +127,10 @@ The `startPayment` method initiates the payment process. It returns a `Flow` of 
 
 The list of possible events:
 
-- `CardRequested` - the SDK is trying to detect a card, waiting for the cardholder to tap/present his card.
+- `CardRequested` - the SDK is trying to detect a card, waiting for the cardholder to tap/present their card.
 - `CardPresented` - a card is detected.
 - `CVMRequested` - a CVM (Cardholder Verification Method) is requested. This event is fired when the card is detected and the SDK is waiting for the cardholder to enter the PIN.
-- `CVMPresented` - a CVM is has been performed by the cardholder. This event is fired upon completion of the CVM regardless if it was successful or not.
+- `CVMPresented` - a CVM was entered by the cardholder. This event is fired upon completion of the CVM regardless if it was successful or not.
 - `TransactionDone(val paymentOutput: PaymentOutput)` - transaction was completed. `PaymentOutput` param is:
   ```kotlin
   data class PaymentOutput(
@@ -152,7 +168,7 @@ Where:
 - `clientUniqueTransactionId` - This should be a unique identifier for the transaction. A random UUID is can be used.
 - `customItems` - The list of custom items. Set null if not used.
 - `priceItems` - The list of price items. Set null if not used.
-- `processCardAs` - The type of the card processing. The default value is `null`. The possible values are `ProcessCardAs.Credit(val instalments: Int)` and `ProcessCardAs.Debit`. Where `instalments` is the number of instalments. This parameter is optional and can be used only on some markets where the instalments are supported.
+- `processCardAs` - The type of the card processing. The default value is `null`. The possible values are `ProcessCardAs.Credit(val instalments: Int)` and `ProcessCardAs.Debit`, where `instalments` is the number of instalments. This parameter is optional and only applicable to some markets, such as Brazil, where the card type selection and instalments are supported.
 
 **Note:** The amounts shall be provided in minor unit of the currency according to the list below.    
 Currencies with exponent 2 : `AUD, BGN, BRL, CHF, CLP, COP, CZK, DKK, EUR, GBP, HRK, HUF, NOK, PEN, PLN, RON, SEK, USD`.
