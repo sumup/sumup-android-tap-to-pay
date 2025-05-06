@@ -40,6 +40,10 @@ To integrate the Tap to Pay on Android SDK you will need:
 - Android Gradle Plugin: 7.3.0 or later
 - Java 17 or later
 
+### Hardware requirements
+- NFC-enabled Android device
+- Android 11 or later
+
 ### Dependency
 
 Add the following to the Gradle dependencies:
