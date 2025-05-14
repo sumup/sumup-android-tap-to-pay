@@ -35,7 +35,7 @@ android {
 }
 
 dependencies {
-    implementation("com.sumup.tap-to-pay:utopia-sdk-dev:0.15.0")
+    implementation("com.sumup.tap-to-pay:utopia-sdk:0.15.0")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.8.0")
