@@ -30,8 +30,8 @@ You can use the sample app provided in this repository as a reference.
 ### Setup
 
 To integrate the Tap to Pay on Android SDK you will need:
-- an API key (used for the authentication process). You can create an API key in the [SumUp Dashboard](https://developer.sumup.com/online-payments/introduction/authorization#api-keys)
 - maven repository credentials (to access the SDK repository, can be requested by sending an email to integration@sumup.com).
+- a Secret API key, in case you don't intend to use the OAuth2 authentication process. You can generate a Secret API key in the [SumUp Dashboard](https://developer.sumup.com/online-payments/introduction/authorization#api-keys)
 
 ### Prerequisites
 - Kotlin version: 1.9.22 or later
@@ -92,8 +92,8 @@ There are several ways for a consumer app to provide the access token to the SDK
 1. Using the OAuth2 [flow](https://developer.sumup.com/online-payments/introduction/authorization#o-auth-2-0):
 The consumer app can implement the OAuth2 flow to get the access token and provide it to the SDK. The SDK provides the `AuthTokenProvider` interface that should be implemented by the consumer app. The implementation of the `getAccessToken` method should return the access token. This way is preferable and recommended because it provides a more secure way to authenticate the user.
 
-2. Using API key:
-It is possible to use provided API key as an auth token, or generate a new one in the [SumUp Dashboard](https://developer.sumup.com/online-payments/introduction/authorization#api-keys) and provide it to the SDK.
+2. Using Secret API key:
+It is possible to use a Secret API key as an auth token. It can be generated in the [SumUp Dashboard](https://developer.sumup.com/online-payments/introduction/authorization#api-keys) and provided to the SDK through `AuthTokenProvider.getAccessToken()` method.
 
 > ⚠️ **Important:**
 >  The API keys should be stored securely and should not be hardcoded in the app. Instead, they should be stored in the secure storage and provided to the SDK when needed. Do not share your secret API keys in publicly accessible places such as GitHub repositories, client-side code, etc.
