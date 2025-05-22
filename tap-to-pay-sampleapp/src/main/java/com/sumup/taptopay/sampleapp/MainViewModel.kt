@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 internal class MainViewModel(
     private val tapToPay: TapToPay
@@ -61,7 +62,7 @@ internal class MainViewModel(
             tapToPay.startPayment(
                 CheckoutData(
                     totalAmount = currentState.paymentData.amount,
-                    clientUniqueTransactionId = "123",
+                    clientUniqueTransactionId = UUID.randomUUID().toString(),
                     tipsAmount = null,
                     vatAmount = null,
                     customItems = null,
