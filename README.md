@@ -70,7 +70,7 @@ allprojects {
 Add the dependency to a module `build.gradle`:
 
 ```kotlin 
-implementation("com.sumup.tap-to-pay:utopia-sdk:0.15.0")
+implementation("com.sumup.tap-to-pay:utopia-sdk:0.18.0")
 ```  
 
 ### Authentication
@@ -161,7 +161,9 @@ data class CheckoutData(
     val clientUniqueTransactionId: String,
     val customItems: List<CustomItem>?,
     val priceItems: List<PriceItem>?,
+    val products: List<ProductModel>?,
     val processCardAs: ProcessCardAs?,
+    val affiliateData: AffiliateModel?,
 ) : Serializable
 ```
 
@@ -172,7 +174,24 @@ Where:
 - `clientUniqueTransactionId` - This should be a unique identifier for the transaction. A random UUID is can be used.
 - `customItems` - The list of custom items. Set null if not used.
 - `priceItems` - The list of price items. Set null if not used.
+- `products` - The list of product items. Set null if not used.
 - `processCardAs` - The type of the card processing. The default value is `null`. The possible values are `ProcessCardAs.Credit(val instalments: Int)` and `ProcessCardAs.Debit`, where `instalments` is the number of instalments. This parameter is optional and only applicable to some markets, such as Brazil, where the card type selection and instalments are supported.
+- `affiliateData` - The affiliate data. Set null if not used.
+
+`affiliateData` - The affiliate data object.
+
+```kotlin
+data class AffiliateModel(
+    val key: String,
+    val foreignTransactionId: String? = null,
+    val tags: Map<String, String>? = null
+) : Serializable
+```
+
+Where:
+- `key` - The affiliate key. It can be generated in the [SumUp Dashboard](https://developer.sumup.com/affiliate-keys).
+- `foreignTransactionId` - The foreign transaction ID. The transaction ID from the affiliate system. Ignored if null.
+- `tags` - The tags. A map of key-value pairs that can be used to store additional information about the transaction. Ignored if null.
 
 **Note:** The amounts shall be provided in minor unit of the currency according to the list below.    
 Currencies with exponent 2 : `AUD, BGN, BRL, CHF, CLP, COP, CZK, DKK, EUR, GBP, HRK, HUF, NOK, PEN, PLN, RON, SEK, USD`.
@@ -214,6 +233,26 @@ suspend fun tearDown(): Result<Unit>
 The `tearDown` function logs out the user, cleans up keys and other sensitive data, and closes the session. 
 The `tearDown` method should be called when the app is closed or when the user logs out.
 It returns a `Result` object that can be either a `Result.Success` if the teardown was successful or a `Result.Failure` if there was an error during the teardown.
+
+### Testing the SDK
+
+ Before testing, make sure of the following:
+1. The app is not debuggable (isDebuggable = false in build.gradle).
+   ```kotlin
+      buildTypes {
+          debug {
+              isDebuggable = false
+          }
+          release {
+              isDebuggable = false
+          }
+      }
+   ```
+2. You have USB debugging disabled on your device. Even if you install the app through a cable, disable the USB debugging after installation.
+3. You have Developer Mode disabled on your device. Even if you install the app through a cable, disable the Developer Mode after installation.
+
+On some devices (e.g. Samsung), you still have to disable USB debugging before disabling the Developer Mode.
+It is still possible to have a USB debugging enabled and Developer Mode disabled, but it depends on the device manufacturer.
 
 #### Exceptions
 
