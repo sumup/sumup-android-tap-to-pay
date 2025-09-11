@@ -183,8 +183,8 @@ Where:
 ```kotlin
 data class AffiliateModel(
     val key: String,
-    val foreignTransactionId: String? = null,
-    val tags: Map<String, String>? = null
+    val foreignTransactionId: String?,
+    val tags: Map<String, String>?
 ) : Serializable
 ```
 
@@ -237,7 +237,7 @@ It returns a `Result` object that can be either a `Result.Success` if the teardo
 ### Testing the SDK
 
  Before testing, make sure of the following:
-1. The app is not debuggable (isDebuggable = false in build.gradle).
+1. The app is not debuggable.
    ```kotlin
       buildTypes {
           debug {
