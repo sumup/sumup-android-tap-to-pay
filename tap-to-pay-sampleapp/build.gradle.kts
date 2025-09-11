@@ -5,14 +5,31 @@ plugins {
 
 android {
     namespace = "com.sumup.taptopay.sampleapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.sumup.taptopay.sampleapp"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+    }
+
+    buildTypes {
+        debug {
+            /*
+                NOTE: This line is important to ensure that the Tap to Pay SDK works and passes attestation.
+                Making the build debuggable will cause the attestation to fail and the payments will not work.
+             */
+            isDebuggable = false
+        }
+        release {
+            /*
+                NOTE: This line is important to ensure that the Tap to Pay SDK works and passes attestation.
+                Making the build debuggable will cause the attestation to fail and the payments will not work.
+             */
+            isDebuggable = false
+        }
     }
 
     compileOptions {
@@ -35,7 +52,7 @@ android {
 }
 
 dependencies {
-    implementation("com.sumup.tap-to-pay:utopia-sdk:0.15.0")
+    implementation("com.sumup.tap-to-pay:utopia-sdk:0.18.0")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.8.0")

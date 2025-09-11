@@ -66,8 +66,10 @@ internal class MainViewModel(
                     tipsAmount = null,
                     vatAmount = null,
                     customItems = null,
+                    products = null,
                     priceItems = null,
                     processCardAs = null,
+                    affiliateData = null
                 )
             ).collectLatest {
                 Log.d("MainViewModel", "Payment event: $it")
@@ -77,6 +79,16 @@ internal class MainViewModel(
 
     private fun initTapToPay() {
         viewModelScope.launch {
+            /*
+                NOTE:
+                Before testing, make sure of the following:
+                1. The app is not debuggable (isDebuggable = false in build.gradle).
+                2. You have USB debugging disabled on your device. Even if you install the app through a cable, disable the USB debugging after installation.
+                3. You have Developer Mode disabled on your device. Even if you install the app through a cable, disable the Developer Mode after installation.
+
+                On some devices (e.g. Samsung), you still have to disable USB debugging before disabling the Developer Mode.
+                It is still possible to have a USB debugging enabled and Developer Mode disabled, but it depends on the device manufacturer.
+             */
             tapToPay.init(
                 object : AuthTokenProvider {
                     override fun getAccessToken(): String = "An access token or API token"
