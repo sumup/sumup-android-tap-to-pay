@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,12 +16,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.sumup.taptopay.TapToPayApiProvider
 import com.sumup.taptopay.sampleapp.screen.MainPaymentScreen
 
@@ -42,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                 val state: MainViewState by viewModel.uiState.collectAsState()
                 val scrollBehavior =
                     TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                val totalAmount = remember { mutableLongStateOf(100L) }
 
                 Scaffold(
                     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -68,37 +76,64 @@ class MainActivity : AppCompatActivity() {
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        when {
-                            state.isLoading -> CircularProgressIndicator()
-
-                            state.error != null -> {
-                                Text("Error: ${state.error}")
-                            }
-
-                            else -> MainPaymentScreen(
-                                amount = state.paymentData.amount.toString(),
-                                onAmountChanged = { amount ->
-                                    viewModel.dispatch(
-                                        MainAction.UpdateAmount(
-                                            if (amount.isNotEmpty()) {
-                                                amount.toLong()
-                                            } else {
-                                                0
-                                            }
-                                        )
+                        when (val s = state) {
+                            MainViewState.Loading -> CircularProgressIndicator()
+                            is MainViewState.Error -> MainState(
+                                totalAmount = totalAmount,
+                                eventLog = {
+                                    Text(
+                                        "Error: ${s.message}",
+                                        color = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.padding(16.dp)
+                                            .verticalScroll(rememberScrollState())
                                     )
                                 },
-                                onStartPayment = {
-                                    viewModel.dispatch(MainAction.StartPayment)
+                            )
+                            is MainViewState.Processing -> MainState(
+                                totalAmount = totalAmount,
+                                eventLog = {
+                                    Text(
+                                        "Processing payment...\n ${s.message}",
+                                        modifier = Modifier.padding(16.dp)
+                                            .verticalScroll(rememberScrollState())
+                                    )
                                 },
-                                onLogout = {
-                                    viewModel.dispatch(MainAction.Teardown)
-                                }
+                            )
+                            MainViewState.Ready -> MainState(
+                                totalAmount = totalAmount,
+                                eventLog = { Text("Ready to process payments") },
                             )
                         }
+
                     }
                 }
             }
         }
+    }
+
+    @Composable
+    fun MainState(
+        totalAmount: MutableLongState,
+        eventLog: @Composable () -> Unit = { Text("No events yet") },
+    ) {
+        MainPaymentScreen(
+            amount = totalAmount.longValue.toString(),
+            eventLog = eventLog,
+            onAmountChanged = { amount ->
+                totalAmount.longValue = if (amount.isEmpty()) {
+                    0L
+                } else {
+                    amount.toLong()
+                }
+            },
+            onStartPayment = {
+                viewModel.dispatch(
+                    MainAction.StartPayment(totalAmount.longValue)
+                )
+            },
+            onLogout = {
+                viewModel.dispatch(MainAction.Teardown)
+            }
+        )
     }
 }

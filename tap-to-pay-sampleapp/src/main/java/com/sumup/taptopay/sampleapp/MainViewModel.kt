@@ -7,10 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.sumup.taptopay.TapToPay
 import com.sumup.taptopay.auth.AuthTokenProvider
 import com.sumup.taptopay.payment.domain.model.api.CheckoutData
+import com.sumup.taptopay.payment.domain.model.api.PaymentEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -18,11 +21,8 @@ internal class MainViewModel(
     private val tapToPay: TapToPay
 ) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<MainViewState> = MutableStateFlow(MainViewState())
+    private val _uiState: MutableStateFlow<MainViewState> = MutableStateFlow(MainViewState.Loading)
     val uiState: StateFlow<MainViewState> = _uiState.asStateFlow()
-
-    private inline val currentState: MainViewState
-        get() = _uiState.value
 
     init {
         initTapToPay()
@@ -30,8 +30,7 @@ internal class MainViewModel(
 
     fun dispatch(action: MainAction) {
         when (action) {
-            is MainAction.StartPayment -> startPayment()
-            is MainAction.UpdateAmount -> updateAmount(action.amount)
+            is MainAction.StartPayment -> startPayment(action.amount)
             is MainAction.Teardown -> teardown()
         }
     }
@@ -40,28 +39,20 @@ internal class MainViewModel(
         viewModelScope.launch {
             tapToPay.tearDown()
                 .onSuccess {
-                    _uiState.emit(currentState.copy(isLoading = true))
+                    _uiState.emit(MainViewState.Loading)
                     initTapToPay()
                 }
         }
     }
 
-    private fun updateAmount(amount: Long) {
+    private fun startPayment(amount: Long) {
         viewModelScope.launch {
-            _uiState.emit(
-                currentState.copy(
-                    isLoading = false,
-                    paymentData = currentState.paymentData.copy(amount = amount)
-                )
-            )
-        }
-    }
+            _uiState.emit(MainViewState.Processing(""))
 
-    private fun startPayment() {
-        viewModelScope.launch {
+
             tapToPay.startPayment(
                 CheckoutData(
-                    totalAmount = currentState.paymentData.amount,
+                    totalAmount = amount,
                     clientUniqueTransactionId = UUID.randomUUID().toString(),
                     tipsAmount = null,
                     vatAmount = null,
@@ -71,8 +62,27 @@ internal class MainViewModel(
                     processCardAs = null,
                     affiliateData = null
                 )
-            ).collectLatest {
-                Log.d("MainViewModel", "Payment event: $it")
+            ).catch {
+                _uiState.emit(
+                    MainViewState.Error(
+                        message = it.message ?: "Unknown error"
+                    )
+                )
+                Log.e("MainViewModel", "Payment error: $it")
+            }.collectLatest { paymentEvent ->
+
+                _uiState.update { previousState ->
+                    MainViewState.Processing(
+                        buildString {
+                            if (previousState is MainViewState.Processing) {
+                                append(previousState.message)
+                            }
+                            append("\n\n")
+                            append("Payment Event: $paymentEvent")
+                        }
+                    )
+                }
+                Log.d("MainViewModel", "Payment event: $paymentEvent")
             }
         }
     }
@@ -93,12 +103,15 @@ internal class MainViewModel(
                 object : AuthTokenProvider {
                     override fun getAccessToken(): String = "An access token or API token"
                 }
-            )
-            _uiState.emit(
-                currentState.copy(
-                    isLoading = false,
-                )
-            )
+            ).onSuccess {
+                Log.d("MainViewModel", "Tap to Pay initialized successfully")
+                _uiState.emit(MainViewState.Ready)
+            }.onFailure {
+                Log.e("MainViewModel", "Tap to Pay init error: $it")
+                _uiState.emit(MainViewState.Error(
+                    message = it.message ?: "Unknown error while initializing Tap to Pay"
+                ))
+            }
         }
     }
 }
