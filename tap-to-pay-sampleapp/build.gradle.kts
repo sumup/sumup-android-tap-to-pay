@@ -17,10 +17,6 @@ android {
 
     buildTypes {
         debug {
-            /*
-                NOTE: This line is important to ensure that the Tap to Pay SDK works and passes attestation.
-                Making the build debuggable will cause the attestation to fail and the payments will not work.
-             */
             isDebuggable = false
         }
         release {
@@ -52,7 +48,9 @@ android {
 }
 
 dependencies {
-    implementation("com.sumup.tap-to-pay:utopia-sdk:1.0.1")
+
+    releaseImplementation("com.sumup.tap-to-pay:utopia-sdk:1.0.1") // Production dependency
+    debugImplementation("com.sumup.tap-to-pay:utopia-sdk-dev-protected:1.0.1") // Testing dependency
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.8.0")

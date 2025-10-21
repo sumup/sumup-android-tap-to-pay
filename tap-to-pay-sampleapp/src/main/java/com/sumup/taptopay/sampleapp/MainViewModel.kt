@@ -91,7 +91,7 @@ internal class MainViewModel(
         viewModelScope.launch {
             /*
                 NOTE:
-                Before testing, make sure of the following:
+                Before testing in production, make sure of the following:
                 1. The app is not debuggable (isDebuggable = false in build.gradle).
                 2. You have USB debugging disabled on your device. Even if you install the app through a cable, disable the USB debugging after installation.
                 3. You have Developer Mode disabled on your device. Even if you install the app through a cable, disable the Developer Mode after installation.
