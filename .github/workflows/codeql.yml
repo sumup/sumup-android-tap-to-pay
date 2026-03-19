@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - hardening
   pull_request:
   schedule:
     - cron: "23 9 * * 3" # GitHub cron is UTC
@@ -23,6 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         language: ["java-kotlin", "actions"]
+        exclude:
+          # java-kotlin needs private Maven credentials that are unavailable on fork PRs
+          - language: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && 'java-kotlin' || 'none' }}
 
     steps:
       - name: Checkout repository
