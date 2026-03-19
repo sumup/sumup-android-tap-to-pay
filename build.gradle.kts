@@ -17,8 +17,8 @@ allprojects {
         maven {
             url = uri("https://tap-to-pay-sdk.fleet.live.sumup.net/")
             credentials {
-                username = "your_username_provided_by_sumup"
-                password = "your_password_provided_by_sumup"
+                username = System.getenv("TAP_TO_PAY_MAVEN_USER") ?: "your_username_provided_by_sumup"
+                password = System.getenv("TAP_TO_PAY_MAVEN_PASSWORD") ?: "your_password_provided_by_sumup"
             }
         }
         google()

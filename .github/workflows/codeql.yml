@@ -26,31 +26,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@6bc82e05fd0ea64601dd4b465378bbcf57de0314 # v4.32.1
         with:
           languages: ${{ matrix.language }}
 
-      - name: Configure Maven credentials
+      - name: Autobuild
         if: matrix.language == 'java-kotlin'
         env:
           TAP_TO_PAY_MAVEN_USER: ${{ secrets.TAP_TO_PAY_MAVEN_USER }}
           TAP_TO_PAY_MAVEN_PASSWORD: ${{ secrets.TAP_TO_PAY_MAVEN_PASSWORD }}
-        run: |
-          python3 -c "
-          import os
-          f = 'build.gradle.kts'
-          content = open(f).read()
-          content = content.replace('your_username_provided_by_sumup', os.environ['TAP_TO_PAY_MAVEN_USER'])
-          content = content.replace('your_password_provided_by_sumup', os.environ['TAP_TO_PAY_MAVEN_PASSWORD'])
-          open(f, 'w').write(content)
-          "
-          grep -c "your_username_provided_by_sumup" build.gradle.kts && echo "::error::Credential replacement failed" && exit 1 || echo "Credentials injected successfully"
-
-      - name: Autobuild
-        if: matrix.language == 'java-kotlin'
         uses: github/codeql-action/autobuild@6bc82e05fd0ea64601dd4b465378bbcf57de0314 # v4.32.1
 
       - name: Perform CodeQL Analysis
