@@ -33,6 +33,15 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
+      - name: Configure Maven credentials
+        if: matrix.language == 'java-kotlin'
+        env:
+          TAP_TO_PAY_MAVEN_USER: ${{ secrets.TAP_TO_PAY_MAVEN_USER }}
+          TAP_TO_PAY_MAVEN_PASSWORD: ${{ secrets.TAP_TO_PAY_MAVEN_PASSWORD }}
+        run: |
+          sed -i "s|your_username_provided_by_sumup|${TAP_TO_PAY_MAVEN_USER}|g" build.gradle.kts
+          sed -i "s|your_password_provided_by_sumup|${TAP_TO_PAY_MAVEN_PASSWORD}|g" build.gradle.kts
+
       - name: Autobuild
         if: matrix.language == 'java-kotlin'
         uses: github/codeql-action/autobuild@6bc82e05fd0ea64601dd4b465378bbcf57de0314 # v4.32.1
