@@ -31,6 +31,7 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -51,12 +52,14 @@ android {
 
 dependencies {
 
-    implementation("com.sumup.tap-to-pay:utopia-sdk:1.1.0") // Production dependency
+    implementation("com.sumup.tap-to-pay:utopia-sdk:1.1.1") // Production dependency
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.8.0")
     implementation("androidx.activity:activity-ktx:1.7.2")
     implementation("androidx.activity:activity-compose:1.7.2")
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 
     // Compose
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
