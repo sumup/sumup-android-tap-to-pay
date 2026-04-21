@@ -52,7 +52,7 @@ android {
 
 dependencies {
 
-    implementation("com.sumup.tap-to-pay:utopia-sdk:1.1.1") // Production dependency
+    implementation("com.sumup.tap-to-pay:utopia-sdk:1.1.2") // Production dependency
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.8.0")
