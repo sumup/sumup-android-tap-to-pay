@@ -3,7 +3,7 @@
 # Tap to Pay on Android SDK
 
 [![Platform](https://img.shields.io/badge/Platform-Android-brightgreen.svg)](https://developer.android.com)
-[![Tap to Pay SDK](https://img.shields.io/badge/Tap%20to%20Pay%20SDK-1.1.1-blue.svg)](https://developer.sumup.com/changelog/android-tap-to-pay-sdk)
+[![Tap to Pay SDK](https://img.shields.io/badge/Tap%20to%20Pay%20SDK-1.1.2-blue.svg)](https://developer.sumup.com/changelog/android-tap-to-pay-sdk)
 [![Documentation][docs-badge]](https://developer.sumup.com/terminal-payments/sdks/android-ttp)
 [![License](https://img.shields.io/github/license/sumup/android-tap-to-pay)](./LICENSE)
 
