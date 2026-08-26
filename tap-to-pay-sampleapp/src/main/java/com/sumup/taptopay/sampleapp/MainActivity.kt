@@ -6,8 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,8 +43,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
         setContent {
-            MaterialTheme{
+            MaterialTheme {
                 val state: MainViewState by viewModel.uiState.collectAsState()
+                val paymentOptions: PaymentOptions by viewModel.paymentOptions.collectAsState()
                 val scrollBehavior =
                     TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                 val totalAmount = remember { mutableLongStateOf(100L) }
@@ -80,31 +79,31 @@ class MainActivity : AppCompatActivity() {
                             MainViewState.Loading -> CircularProgressIndicator()
                             is MainViewState.Error -> MainState(
                                 totalAmount = totalAmount,
+                                paymentOptions = paymentOptions,
                                 eventLog = {
                                     Text(
                                         "Error: ${s.message}",
                                         color = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.padding(16.dp)
-                                            .verticalScroll(rememberScrollState())
                                     )
                                 },
                             )
                             is MainViewState.Processing -> MainState(
                                 totalAmount = totalAmount,
+                                paymentOptions = paymentOptions,
                                 eventLog = {
                                     Text(
                                         "Processing payment...\n ${s.message}",
                                         modifier = Modifier.padding(16.dp)
-                                            .verticalScroll(rememberScrollState())
                                     )
                                 },
                             )
                             MainViewState.Ready -> MainState(
                                 totalAmount = totalAmount,
+                                paymentOptions = paymentOptions,
                                 eventLog = { Text("Ready to process payments") },
                             )
                         }
-
                     }
                 }
             }
@@ -114,10 +113,14 @@ class MainActivity : AppCompatActivity() {
     @Composable
     fun MainState(
         totalAmount: MutableLongState,
+        paymentOptions: PaymentOptions,
         eventLog: @Composable () -> Unit = { Text("No events yet") },
     ) {
         MainPaymentScreen(
             amount = totalAmount.longValue.toString(),
+            skipSuccessScreen = paymentOptions.skipSuccessScreen,
+            timeoutCardWaitInput = paymentOptions.timeoutCardWaitInput,
+            timeoutCardWaitInvalid = paymentOptions.isTimeoutCardWaitInvalid(),
             eventLog = eventLog,
             onAmountChanged = { amount ->
                 totalAmount.longValue = if (amount.isEmpty()) {
@@ -125,6 +128,12 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     amount.toLong()
                 }
+            },
+            onSkipSuccessScreenChanged = { skip ->
+                viewModel.dispatch(MainAction.SkipSuccessScreen(skip))
+            },
+            onTimeoutCardWaitChanged = { input ->
+                viewModel.dispatch(MainAction.UpdateTimeoutCardWait(input))
             },
             onStartPayment = {
                 viewModel.dispatch(

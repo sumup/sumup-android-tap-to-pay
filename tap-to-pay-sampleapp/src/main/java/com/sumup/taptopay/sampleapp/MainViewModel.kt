@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.sumup.taptopay.TapToPay
 import com.sumup.taptopay.auth.AuthTokenProvider
 import com.sumup.taptopay.payment.domain.model.api.CheckoutData
-import com.sumup.taptopay.payment.domain.model.api.PaymentEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +23,9 @@ internal class MainViewModel(
     private val _uiState: MutableStateFlow<MainViewState> = MutableStateFlow(MainViewState.Loading)
     val uiState: StateFlow<MainViewState> = _uiState.asStateFlow()
 
+    private val _paymentOptions = MutableStateFlow(PaymentOptions())
+    val paymentOptions: StateFlow<PaymentOptions> = _paymentOptions.asStateFlow()
+
     init {
         initTapToPay()
     }
@@ -32,7 +34,17 @@ internal class MainViewModel(
         when (action) {
             is MainAction.StartPayment -> startPayment(action.amount)
             is MainAction.Teardown -> teardown()
+            is MainAction.SkipSuccessScreen -> updateSkipSuccessScreen(action.skip)
+            is MainAction.UpdateTimeoutCardWait -> updateTimeoutCardWait(action.input)
         }
+    }
+
+    private fun updateSkipSuccessScreen(skip: Boolean) {
+        _paymentOptions.update { it.copy(skipSuccessScreen = skip) }
+    }
+
+    private fun updateTimeoutCardWait(input: String) {
+        _paymentOptions.update { it.copy(timeoutCardWaitInput = input) }
     }
 
     private fun teardown() {
@@ -47,11 +59,11 @@ internal class MainViewModel(
 
     private fun startPayment(amount: Long) {
         viewModelScope.launch {
+            val options = _paymentOptions.value
             _uiState.emit(MainViewState.Processing(""))
 
-
             tapToPay.startPayment(
-                CheckoutData(
+                checkoutData = CheckoutData(
                     totalAmount = amount,
                     clientUniqueTransactionId = UUID.randomUUID().toString(),
                     tipsAmount = null,
@@ -61,7 +73,9 @@ internal class MainViewModel(
                     priceItems = null,
                     processCardAs = null,
                     affiliateData = null
-                )
+                ),
+                skipSuccessScreen = options.skipSuccessScreen,
+                timeoutCardWaitSeconds = options.timeoutCardWaitSeconds(),
             ).catch {
                 _uiState.emit(
                     MainViewState.Error(
@@ -70,7 +84,6 @@ internal class MainViewModel(
                 )
                 Log.e("MainViewModel", "Payment error: $it")
             }.collectLatest { paymentEvent ->
-
                 _uiState.update { previousState ->
                     MainViewState.Processing(
                         buildString {
@@ -108,9 +121,11 @@ internal class MainViewModel(
                 _uiState.emit(MainViewState.Ready)
             }.onFailure {
                 Log.e("MainViewModel", "Tap to Pay init error: $it")
-                _uiState.emit(MainViewState.Error(
-                    message = it.message ?: "Unknown error while initializing Tap to Pay"
-                ))
+                _uiState.emit(
+                    MainViewState.Error(
+                        message = it.message ?: "Unknown error while initializing Tap to Pay"
+                    )
+                )
             }
         }
     }

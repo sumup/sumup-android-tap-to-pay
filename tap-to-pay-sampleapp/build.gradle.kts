@@ -1,16 +1,17 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
     namespace = "com.sumup.taptopay.sampleapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.sumup.taptopay.sampleapp"
         minSdk = 30
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }
@@ -41,10 +42,6 @@ android {
         viewBinding = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
-    }
-
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
@@ -52,7 +49,7 @@ android {
 
 dependencies {
 
-    implementation("com.sumup.tap-to-pay:utopia-sdk:1.1.5") // Production dependency
+    implementation("com.sumup.tap-to-pay:utopia-sdk:1.1.6") // Production dependency
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.8.0")
