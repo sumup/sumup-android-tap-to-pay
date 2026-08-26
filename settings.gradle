@@ -1,2 +1,14 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id("org.jetbrains.kotlin.android") version "2.2.21"
+        id("org.jetbrains.kotlin.plugin.compose") version "2.2.21"
+    }
+}
+
 rootProject.name = "android-tap-to-pay"
-include(':tap-to-pay-sampleapp')
+include(":tap-to-pay-sampleapp")
