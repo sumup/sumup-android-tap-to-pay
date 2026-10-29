@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.sumup.taptopay.TapToPay
 import com.sumup.taptopay.auth.AuthTokenProvider
+import com.sumup.taptopay.payment.domain.model.api.AffiliateModel
 import com.sumup.taptopay.payment.domain.model.api.CheckoutData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,7 +73,7 @@ internal class MainViewModel(
                     products = null,
                     priceItems = null,
                     processCardAs = null,
-                    affiliateData = null
+                    affiliateData = AffiliateModel(key = "YOUR_AFFILIATE_KEY")
                 ),
                 skipSuccessScreen = options.skipSuccessScreen,
                 timeoutCardWaitSeconds = options.timeoutCardWaitSeconds(),
